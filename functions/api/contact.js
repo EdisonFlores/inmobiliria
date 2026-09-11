@@ -100,8 +100,13 @@ export async function onRequest(context) {
   if (request.method !== 'POST') {
     return json({ error: 'Método no permitido.' }, 405, { Allow: 'POST' });
   }
-  if (!env.TURNSTILE_SECRET_KEY || !env.SUPABASE_URL || !env.SUPABASE_SERVICE_ROLE_KEY) {
-    return json({ error: 'El servicio de contacto todavía no está configurado.' }, 503);
+  const missingVariables = ['TURNSTILE_SECRET_KEY', 'SUPABASE_URL', 'SUPABASE_SERVICE_ROLE_KEY']
+    .filter(name => !env[name]);
+  if (missingVariables.length) {
+    return json({
+      error: 'El servicio de contacto todavía no está configurado.',
+      missingVariables,
+    }, 503);
   }
   try {
     const body = validateRequestBody(await request.json());
