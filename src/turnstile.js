@@ -87,3 +87,67 @@ export async function requestTurnstileToken(lang = 'es') {
     });
   });
 }
+
+export function openVerifiedContactWindow(lang = 'es') {
+  return new Promise((resolve, reject) => {
+    const overlay = document.createElement('div');
+    overlay.className = 'turnstile-overlay';
+    overlay.setAttribute('role', 'dialog');
+    overlay.setAttribute('aria-modal', 'true');
+    overlay.setAttribute('aria-label', lang === 'es' ? 'Continuar a WhatsApp' : 'Continue to WhatsApp');
+
+    const card = document.createElement('section');
+    card.className = 'turnstile-card turnstile-success';
+    const badge = document.createElement('span');
+    badge.className = 'turnstile-success-badge';
+    badge.textContent = '✓';
+    const heading = document.createElement('h2');
+    heading.textContent = lang === 'es' ? 'Verificación completada' : 'Verification complete';
+    const description = document.createElement('p');
+    description.textContent = lang === 'es'
+      ? 'Ahora puedes continuar y comunicarte con el asesor por WhatsApp.'
+      : 'You can now continue and contact the advisor on WhatsApp.';
+    const continueButton = document.createElement('button');
+    continueButton.type = 'button';
+    continueButton.className = 'turnstile-continue';
+    continueButton.textContent = lang === 'es' ? 'Continuar a WhatsApp' : 'Continue to WhatsApp';
+    const cancel = document.createElement('button');
+    cancel.type = 'button';
+    cancel.className = 'turnstile-cancel';
+    cancel.textContent = lang === 'es' ? 'Cancelar' : 'Cancel';
+
+    card.append(badge, heading, description, continueButton, cancel);
+    overlay.append(card);
+    document.body.append(overlay);
+    document.body.classList.add('modal-open');
+
+    let settled = false;
+    const close = (error, popup) => {
+      if (settled) return;
+      settled = true;
+      overlay.remove();
+      document.body.classList.remove('modal-open');
+      if (error) reject(error);
+      else resolve(popup);
+    };
+    const cancelFlow = () => close(new DOMException('Cancelado', 'AbortError'));
+
+    continueButton.addEventListener('click', () => {
+      const popup = window.open('about:blank', '_blank');
+      if (!popup) {
+        close(new Error(lang === 'es'
+          ? 'El navegador bloqueó la nueva pestaña. Permite las ventanas emergentes e inténtalo nuevamente.'
+          : 'The browser blocked the new tab. Allow pop-ups and try again.'));
+        return;
+      }
+      popup.document.title = lang === 'es' ? 'Preparando contacto…' : 'Preparing contact…';
+      popup.document.body.innerHTML = `<p style="font:16px system-ui;padding:30px">${lang === 'es' ? 'Generando código cliente y asignando asesor…' : 'Generating client code and assigning advisor…'}</p>`;
+      popup.opener = null;
+      close(null, popup);
+    });
+    cancel.addEventListener('click', cancelFlow);
+    overlay.addEventListener('mousedown', event => {
+      if (event.target === overlay) cancelFlow();
+    });
+  });
+}

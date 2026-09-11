@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 import './styles.css';
 import { createPublicClientContact, useSiteSettings, whatsappUrl } from './site-settings';
-import { requestTurnstileToken } from './turnstile';
+import { openVerifiedContactWindow, requestTurnstileToken } from './turnstile';
 import { usePublishedProperties, usePublicProperty, usePublicSuccessCases } from './public-data';
 
 const BASE_URL = import.meta.env.BASE_URL;
@@ -82,21 +82,13 @@ async function openRegisteredAdvisorContact(event, items, lang, purpose = 'prope
   event.preventDefault();
   if (openRegisteredAdvisorContact.pending) return;
   openRegisteredAdvisorContact.pending = true;
-  const popup = window.open('about:blank', '_blank');
-  if (popup) {
-    popup.document.title = lang === 'es' ? 'Preparando contacto…' : 'Preparing contact…';
-    popup.document.body.innerHTML = `<p style="font:16px system-ui;padding:30px">${lang === 'es' ? 'Generando código cliente y asignando asesor…' : 'Generating client code and assigning advisor…'}</p>`;
-    popup.opener = null;
-  }
+  let popup;
   try {
     const turnstileToken = await requestTurnstileToken(lang);
-    if (popup) {
-      popup.document.body.innerHTML = `<p style="font:16px system-ui;padding:30px">${lang === 'es' ? 'Generando código cliente y asignando asesor…' : 'Generating client code and assigning advisor…'}</p>`;
-    }
+    popup = await openVerifiedContactWindow(lang);
     const contact = await createPublicClientContact(items, purpose, turnstileToken);
     const destination = advisorWhatsappUrl(contact.advisor_phone, contact.whatsapp_message);
-    if (popup) popup.location.replace(destination);
-    else window.open(destination, '_blank', 'noopener,noreferrer');
+    popup.location.replace(destination);
   } catch (error) {
     popup?.close();
     if (error.name !== 'AbortError') {
