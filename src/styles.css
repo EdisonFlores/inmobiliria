@@ -225,6 +225,14 @@ h1 em, h2 em { color: var(--leaf); font-weight: 600; }
 .contact-card h2 em { color: var(--gold); }
 .contact-card p { max-width: 520px; color: rgba(255,255,255,.6); font-size: 12px; line-height: 1.7; }
 .contact-actions { display: grid; flex: 0 0 285px; gap: 16px; }
+.modal-open { overflow: hidden; }
+.turnstile-overlay { position: fixed; z-index: 10000; inset: 0; display: grid; place-items: center; padding: 20px; background: rgba(2,31,22,.72); backdrop-filter: blur(6px); }
+.turnstile-card { width: min(100%, 420px); padding: 30px; border: 1px solid rgba(6,63,45,.12); border-radius: 14px; background: var(--cream); box-shadow: 0 25px 80px rgba(0,0,0,.3); text-align: center; }
+.turnstile-card h2 { margin: 0 0 9px; color: var(--forest); font-size: 28px; }
+.turnstile-card p { margin: 0 0 22px; color: var(--muted); line-height: 1.6; }
+.turnstile-widget { min-height: 65px; }
+.turnstile-cancel { margin-top: 18px; padding: 10px 18px; border: 1px solid rgba(6,63,45,.2); border-radius: 7px; color: var(--forest); background: transparent; cursor: pointer; font-weight: 800; }
+[data-theme="dark"] .turnstile-card { border-color: rgba(255,255,255,.12); }
 .button-whatsapp { background: #2c9a5c; }
 .contact-actions > a:last-child { display: flex; align-items: center; justify-content: center; gap: 8px; color: rgba(255,255,255,.72); font-size: 11px; }
 

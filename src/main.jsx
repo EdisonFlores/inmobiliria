@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import './styles.css';
 import { createPublicClientContact, useSiteSettings, whatsappUrl } from './site-settings';
+import { requestTurnstileToken } from './turnstile';
 import { usePublishedProperties, usePublicProperty, usePublicSuccessCases } from './public-data';
 
 const BASE_URL = import.meta.env.BASE_URL;
@@ -88,13 +89,19 @@ async function openRegisteredAdvisorContact(event, items, lang, purpose = 'prope
     popup.opener = null;
   }
   try {
-    const contact = await createPublicClientContact(items, purpose);
+    const turnstileToken = await requestTurnstileToken(lang);
+    if (popup) {
+      popup.document.body.innerHTML = `<p style="font:16px system-ui;padding:30px">${lang === 'es' ? 'Generando código cliente y asignando asesor…' : 'Generating client code and assigning advisor…'}</p>`;
+    }
+    const contact = await createPublicClientContact(items, purpose, turnstileToken);
     const destination = advisorWhatsappUrl(contact.advisor_phone, contact.whatsapp_message);
     if (popup) popup.location.replace(destination);
     else window.open(destination, '_blank', 'noopener,noreferrer');
   } catch (error) {
     popup?.close();
-    window.alert(`${lang === 'es' ? 'No se pudo iniciar el contacto' : 'Could not start contact'}: ${error.message}`);
+    if (error.name !== 'AbortError') {
+      window.alert(`${lang === 'es' ? 'No se pudo iniciar el contacto' : 'Could not start contact'}: ${error.message}`);
+    }
   } finally {
     openRegisteredAdvisorContact.pending = false;
   }

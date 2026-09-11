@@ -52,30 +52,16 @@ export async function supabaseGet(table, params = {}, signal) {
   return response.json();
 }
 
-export async function createPublicClientContact(items, purpose = 'property_interest') {
-  if (!isConfigured) throw new Error('Supabase no está configurado.');
-  const propertyIds = items.filter(item => item.kind === 'property').map(item => item.id);
-  const lotIds = items.filter(item => item.kind === 'lot').map(item => item.id);
-  const isGeneralContact = items.length === 0;
-  const rpcName = isGeneralContact
-    ? purpose === 'seller' ? 'create_public_seller_contact' : 'create_public_general_contact'
-    : 'create_public_client_contact';
-  const body = isGeneralContact ? {} : {
-    p_property_ids: propertyIds,
-    p_lot_ids: lotIds,
-    p_public_base_url: new URL(import.meta.env.BASE_URL, window.location.origin).href.replace(/\/$/, ''),
-  };
-  const response = await fetch(`${supabaseUrl}/rest/v1/rpc/${rpcName}`, {
+export async function createPublicClientContact(items, purpose = 'property_interest', turnstileToken = '') {
+  const response = await fetch(`${import.meta.env.BASE_URL}api/contact`, {
     method: 'POST',
     headers: {
-      apikey: supabasePublishableKey,
-      Authorization: `Bearer ${supabasePublishableKey}`,
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify(body),
+    body: JSON.stringify({ items, purpose, turnstileToken }),
   });
   const data = await response.json().catch(() => ({}));
-  if (!response.ok) throw new Error(data.message || 'No se pudo generar el código cliente.');
+  if (!response.ok) throw new Error(data.error || 'No se pudo generar el código cliente.');
   return data;
 }
 
