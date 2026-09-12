@@ -104,7 +104,6 @@ export function useSiteSettings() {
     const root = document.documentElement;
     root.style.setProperty('--forest', safeColor(state.settings.brand_primary, defaultSiteSettings.brand_primary));
     root.style.setProperty('--gold', safeColor(state.settings.brand_secondary, defaultSiteSettings.brand_secondary));
-    document.title = state.settings.business_name || defaultSiteSettings.business_name;
   }, [state.settings]);
 
   return state;
