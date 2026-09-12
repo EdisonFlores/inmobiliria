@@ -29,6 +29,28 @@ const propertyTypeLabels = {
   warehouse: ['Bodega', 'Warehouse'], other: ['Otro', 'Other'],
 };
 const propertyTypeLabel = (type, lang) => (propertyTypeLabels[type] || propertyTypeLabels.other)[lang === 'es' ? 0 : 1];
+const propertyValueLabels = {
+  deed: ['Escritura', 'Deed'],
+  rights_actions: ['Derechos y acciones', 'Rights and shares'],
+  municipal: ['Documento municipal', 'Municipal document'],
+  subdivision_process: ['En proceso de lotización', 'Subdivision in progress'],
+  other: ['Otro', 'Other'],
+  aprobada: ['Aprobada', 'Approved'],
+  aprobado: ['Aprobado', 'Approved'],
+  'en aprobación': ['En aprobación', 'Pending approval'],
+};
+const localizedPropertyValue = (value, lang) => {
+  if (value == null || value === '') return value;
+  const labels = propertyValueLabels[String(value).trim().toLowerCase()];
+  return labels ? labels[lang === 'es' ? 0 : 1] : value;
+};
+const locationReferenceLabels = {
+  'media cuadra de la escuela 29 de mayo': 'Half a block from 29 de Mayo School',
+};
+const localizedLocationReference = (value, lang) => {
+  if (!value || lang === 'es') return value;
+  return locationReferenceLabels[String(value).trim().toLowerCase()] || value;
+};
 const pageUrl = (path = '/') => `${BASE_URL}${path.replace(/^\//, '')}`;
 const currentPage = () => {
   const relative = window.location.pathname.startsWith(BASE_URL)
@@ -585,13 +607,13 @@ function PropertyDetailPage({ t, lang, identifier, settings }) {
     [Building2, lang === 'es' ? 'Pisos' : 'Floors', property.floors],
     [Calendar, lang === 'es' ? 'Año de construcción' : 'Year built', property.year_built],
     [MapPin, lang === 'es' ? 'Frente × fondo' : 'Front × depth', property.frontage_m && property.depth_m ? `${property.frontage_m} × ${property.depth_m} m` : null],
-    [FileCheck2, t.documentation, property.deed_status || null],
+    [FileCheck2, t.documentation, localizedPropertyValue(property.deed_status, lang) || null],
   ].filter(([, , value]) => value != null && value !== '');
   const subdivisionDetailItems = [
     [LandPlot, lang === 'es' ? 'Cantidad planificada' : 'Planned lots', property.subdivision?.planned_lot_count],
     [Ruler, lang === 'es' ? 'Ancho de vías internas' : 'Internal road width', property.subdivision?.internal_road_width_m ? `${property.subdivision.internal_road_width_m} m` : null],
     [Trees, lang === 'es' ? 'Área verde' : 'Green area', property.subdivision?.green_area_m2 ? `${Number(property.subdivision.green_area_m2).toLocaleString('es-EC')} m²` : null],
-    [FileCheck2, lang === 'es' ? 'Estado legal' : 'Legal status', property.subdivision?.legal_status],
+    [FileCheck2, lang === 'es' ? 'Estado legal' : 'Legal status', localizedPropertyValue(property.subdivision?.legal_status, lang)],
     [FileCheck2, lang === 'es' ? 'Escrituras individuales' : 'Individual deeds', property.subdivision ? (property.subdivision.individual_deeds ? (lang === 'es' ? 'Sí' : 'Yes') : (lang === 'es' ? 'No' : 'No')) : null],
     [CircleDollarSign, lang === 'es' ? 'Financiamiento' : 'Financing', property.subdivision ? (property.subdivision.financing_available ? (lang === 'es' ? 'Disponible' : 'Available') : (lang === 'es' ? 'No disponible' : 'Not available')) : null],
   ].filter(([, , value]) => value != null && value !== '');
@@ -613,7 +635,7 @@ function PropertyDetailPage({ t, lang, identifier, settings }) {
       <div className={`property-detail-layout ${isSubdivision ? 'without-advisor' : ''}`}><main className="property-main-flow">
         <section className="property-information"><span className="eyebrow dark"><span/>{lang === 'es' ? 'Información' : 'Information'}</span><h2>{t.description}</h2><p className={!descriptionExpanded && description.length > 420 ? 'description-collapsed' : ''}>{description || (lang === 'es' ? 'Solicita información adicional a uno de nuestros asesores.' : 'Ask one of our advisors for additional information.')}</p>{description.length > 420 && <button className="description-toggle" onClick={() => setDescriptionExpanded(value => !value)}>{descriptionExpanded ? (lang === 'es' ? 'Ver menos' : 'Show less') : (lang === 'es' ? 'Ver descripción completa' : 'Read full description')}<ChevronDown/></button>}{detailItems.length > 0 && <><h3>{isSubdivision ? (lang === 'es' ? 'Detalles de la lotización' : 'Subdivision details') : (lang === 'es' ? 'Detalles del inmueble' : 'Property details')}</h3><div className="detail-facts-grid">{detailItems.map(([Icon,label,value]) => <span key={label}><Icon/><small>{label}</small><strong>{value}</strong></span>)}</div></>}</section>
         {serviceItems.length > 0 && <section className="property-services"><h2>{t.services}</h2><div className="service-access-grid">{serviceItems.map((item,index) => <span key={item.id || `${item.name_es}-${index}`}><Check/><b>{lang === 'es' ? 'Disponible' : 'Available'}</b><small>{lang === 'en' && item.name_en ? item.name_en : item.name_es}</small></span>)}</div></section>}
-        <section className="map-block"><div><span className="eyebrow dark"><span/>OpenStreetMap</span><h2>{isSubdivision ? (lang === 'es' ? 'Disponibilidad de lotes' : 'Lot availability') : t.location}</h2><p><MapPin/>{property.location}</p><small>{hasMap ? (isSubdivision ? (lang === 'es' ? 'Selecciona un polígono para consultar el estado, área, precio, medidas e imágenes del lote.' : 'Select a polygon to view the lot status, area, price, dimensions and images.') : t.mapNote) : missingMapMessage}</small>{property.location_reference && <small>{property.location_reference}</small>}</div>{hasMap ? <PropertyMap t={t} lang={lang} settings={settings} property={{...property,title}}/> : <div className="map-empty"><MapPin/><span>{missingMapMessage}</span></div>}</section>
+        <section className="map-block"><div><span className="eyebrow dark"><span/>OpenStreetMap</span><h2>{isSubdivision ? (lang === 'es' ? 'Disponibilidad de lotes' : 'Lot availability') : t.location}</h2><p><MapPin/>{property.location}</p><small>{hasMap ? (isSubdivision ? (lang === 'es' ? 'Selecciona un polígono para consultar el estado, área, precio, medidas e imágenes del lote.' : 'Select a polygon to view the lot status, area, price, dimensions and images.') : t.mapNote) : missingMapMessage}</small>{property.location_reference && <small>{localizedLocationReference(property.location_reference, lang)}</small>}</div>{hasMap ? <PropertyMap t={t} lang={lang} settings={settings} property={{...property,title}}/> : <div className="map-empty"><MapPin/><span>{missingMapMessage}</span></div>}</section>
         <PropertyVideos t={t} videos={property.videos} fallbackImage={property.image}/>
         {property.panoramas.length > 0 && <section className="panorama-intro"><div><span className="eyebrow dark"><span/>360°</span><h2>{t.virtualTour}</h2><p>{t.gallery360Hint}</p></div><VirtualTour property={{...property,title}} t={t} panoramas={property.panoramas}/></section>}
         {!isSubdivision && <section className="property-final-cta"><span><MessageCircle/></span><div><h2>{lang === 'es' ? '¿Te interesa esta propiedad?' : 'Interested in this property?'}</h2><p>{lang === 'es' ? 'Habla con un asesor para recibir más información o coordinar una visita.' : 'Talk to an advisor for more information or to arrange a visit.'}</p></div>{canContactProperty && <div><a className="button button-gold" href={advisorUrl} onClick={event => openRegisteredAdvisorContact(event, [{ kind: 'property', id: property.id }], lang)}><MessageCircle/>{lang === 'es' ? 'Contactarse con un asesor' : 'Contact an advisor'}</a></div>}</section>}
@@ -696,6 +718,43 @@ function App() {
   const language = useLanguage();
   const { settings, loading: configLoading } = useSiteSettings();
   const path = currentPage();
+  useEffect(() => {
+    const business = settings.business_name || 'Amazonia Propiedades EC';
+    const isEnglish = language.lang === 'en';
+    const pageMetadata = {
+      '/': [business, isEnglish
+        ? 'Homes, land, farms and subdivisions in Macas and Morona Santiago.'
+        : 'Casas, terrenos, fincas y lotizaciones en Macas y Morona Santiago.'],
+      '/propiedades': [isEnglish ? `Properties | ${business}` : `Propiedades | ${business}`, isEnglish
+        ? 'Explore available properties in the Ecuadorian Amazon.'
+        : 'Explora propiedades disponibles en la Amazonía ecuatoriana.'],
+      '/casos-de-exito': [isEnglish ? `Success stories | ${business}` : `Casos de éxito | ${business}`, isEnglish
+        ? 'Discover the real estate transactions completed with our guidance.'
+        : 'Conoce las operaciones inmobiliarias completadas con nuestro acompañamiento.'],
+      '/vende-con-nosotros': [isEnglish ? `Sell with us | ${business}` : `Vende con nosotros | ${business}`, isEnglish
+        ? 'Receive professional support to market and sell your property.'
+        : 'Recibe acompañamiento profesional para promocionar y vender tu propiedad.'],
+      '/carrito': [isEnglish ? `Properties of interest | ${business}` : `Propiedades de interés | ${business}`, isEnglish
+        ? 'Review the properties you selected before contacting an advisor.'
+        : 'Revisa las propiedades seleccionadas antes de contactar a un asesor.'],
+    };
+    const fallback = path.startsWith('/propiedades/')
+      ? [isEnglish ? `Property details | ${business}` : `Detalle de propiedad | ${business}`, isEnglish
+        ? 'View the features, images and location of this property.'
+        : 'Consulta las características, imágenes y ubicación de esta propiedad.']
+      : pageMetadata['/'];
+    const [title, description] = pageMetadata[path] || fallback;
+    const canonicalUrl = `${window.location.origin}${path === '/' ? '/' : path}`;
+    document.title = title;
+    document.querySelector('meta[name="description"]')?.setAttribute('content', description);
+    document.querySelector('meta[name="robots"]')?.setAttribute('content', path === '/carrito' ? 'noindex, follow' : 'index, follow');
+    document.querySelector('link[rel="canonical"]')?.setAttribute('href', canonicalUrl);
+    document.querySelector('meta[property="og:title"]')?.setAttribute('content', title);
+    document.querySelector('meta[property="og:description"]')?.setAttribute('content', description);
+    document.querySelector('meta[property="og:url"]')?.setAttribute('content', canonicalUrl);
+    document.querySelector('meta[name="twitter:title"]')?.setAttribute('content', title);
+    document.querySelector('meta[name="twitter:description"]')?.setAttribute('content', description);
+  }, [path, language.lang, settings.business_name]);
   let page;
   const detailMatch = path.match(/^\/propiedades\/([^/]+)$/);
   if (detailMatch) page = <PropertyDetailPage t={language.t} lang={language.lang} identifier={decodeURIComponent(detailMatch[1])} settings={settings}/>;

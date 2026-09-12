@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /carrito
+
+Sitemap: https://amazonia-ec-demo.pages.dev/sitemap.xml
