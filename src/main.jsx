@@ -106,9 +106,9 @@ async function openRegisteredAdvisorContact(event, items, lang, purpose = 'prope
   openRegisteredAdvisorContact.pending = true;
   let popup;
   try {
-    const turnstileToken = await requestTurnstileToken(lang);
+    const verification = await requestTurnstileToken(lang);
     popup = await openVerifiedContactWindow(lang);
-    const contact = await createPublicClientContact(items, purpose, turnstileToken);
+    const contact = await createPublicClientContact(items, purpose, verification);
     const destination = advisorWhatsappUrl(contact.advisor_phone, contact.whatsapp_message);
     popup.location.replace(destination);
   } catch (error) {
@@ -206,7 +206,7 @@ function Header({ t, lang, toggle, theme, toggleTheme, settings }) {
 function Footer({ t, lang, settings }) {
   const tagline = lang === 'es' ? settings.tagline_es : 'More than properties, a legacy for your family.';
   const location = settings.address || settings.city;
-  return <footer><div className="container footer-main"><div className="footer-brand"><Brand settings={settings}/><p>{tagline}</p>{(settings.facebook_url || settings.instagram_url) && <div className="footer-socials">{settings.facebook_url && <a href={settings.facebook_url} target="_blank" rel="noreferrer"><b>f</b><span>Facebook</span></a>}{settings.instagram_url && <a href={settings.instagram_url} target="_blank" rel="noreferrer"><b>ig</b><span>Instagram</span></a>}</div>}</div><nav className="footer-column" aria-label={lang === 'es' ? 'Explorar' : 'Explore'}><strong>{lang === 'es' ? 'Explorar' : 'Explore'}</strong><a href={pageUrl('/')}>{t.nav.home}</a><a href={pageUrl('/#nosotros')}>{t.nav.about}</a>{settings.show_properties && <a href={pageUrl('/propiedades')}>{t.nav.properties}</a>}</nav><nav className="footer-column" aria-label={lang === 'es' ? 'Servicios' : 'Services'}><strong>{lang === 'es' ? 'Servicios' : 'Services'}</strong>{settings.show_success_cases && <a href={pageUrl('/casos-de-exito')}>{t.nav.success}</a>}{settings.show_sell_with_us && <a href={pageUrl('/vende-con-nosotros')}>{t.nav.sell}</a>}<a href={pageUrl('/carrito')}>{t.cart}</a></nav><div className="footer-column footer-contact"><strong>{lang === 'es' ? 'Información de contacto' : 'Contact information'}</strong>{location && <span><MapPin/>{location}</span>}{settings.phone && <a href={`tel:${settings.phone.replace(/\s/g, '')}`}><Phone/>{settings.phone}</a>}{settings.email && <a href={`mailto:${settings.email}`}><Mail/>{settings.email}</a>}</div></div><div className="container footer-bottom"><span>© {new Date().getFullYear()} {settings.business_name}. {lang === 'es' ? 'Todos los derechos reservados.' : 'All rights reserved.'}</span><span className="developer-credit">{lang === 'es' ? 'Sitio web desarrollado por' : 'Website developed by'} <a href="https://edisonflores.vercel.app/" target="_blank" rel="noopener noreferrer">Edison Flores<ArrowRight/></a></span></div></footer>;
+  return <footer><div className="container footer-main"><div className="footer-brand"><Brand settings={settings}/><p>{tagline}</p>{(settings.facebook_url || settings.instagram_url) && <div className="footer-socials">{settings.facebook_url && <a href={settings.facebook_url} target="_blank" rel="noreferrer"><b>f</b><span>Facebook</span></a>}{settings.instagram_url && <a href={settings.instagram_url} target="_blank" rel="noreferrer"><b>ig</b><span>Instagram</span></a>}</div>}</div><nav className="footer-column" aria-label={lang === 'es' ? 'Explorar' : 'Explore'}><strong>{lang === 'es' ? 'Explorar' : 'Explore'}</strong><a href={pageUrl('/')}>{t.nav.home}</a><a href={pageUrl('/#nosotros')}>{t.nav.about}</a>{settings.show_properties && <a href={pageUrl('/propiedades')}>{t.nav.properties}</a>}</nav><nav className="footer-column" aria-label={lang === 'es' ? 'Servicios' : 'Services'}><strong>{lang === 'es' ? 'Servicios' : 'Services'}</strong>{settings.show_success_cases && <a href={pageUrl('/casos-de-exito')}>{t.nav.success}</a>}{settings.show_sell_with_us && <a href={pageUrl('/vende-con-nosotros')}>{t.nav.sell}</a>}<a href={pageUrl('/carrito')}>{t.cart}</a><a href={pageUrl('/politica-de-privacidad')}>{lang === 'es' ? 'Política de privacidad' : 'Privacy policy'}</a></nav><div className="footer-column footer-contact"><strong>{lang === 'es' ? 'Información de contacto' : 'Contact information'}</strong>{location && <span><MapPin/>{location}</span>}{settings.phone && <a href={`tel:${settings.phone.replace(/\s/g, '')}`}><Phone/>{settings.phone}</a>}{settings.email && <a href={`mailto:${settings.email}`}><Mail/>{settings.email}</a>}</div></div><div className="container footer-bottom"><span>© {new Date().getFullYear()} {settings.business_name}. {lang === 'es' ? 'Todos los derechos reservados.' : 'All rights reserved.'}</span><span className="developer-credit">{lang === 'es' ? 'Sitio web desarrollado por' : 'Website developed by'} <a href="https://edisonflores.vercel.app/" target="_blank" rel="noopener noreferrer">Edison Flores<ArrowRight/></a></span></div></footer>;
 }
 
 function Assistants({ t, lang }) {
@@ -696,6 +696,41 @@ function ContactStrip({ t, lang, settings }) {
   return <section id="contacto" className="contact-section"><div className="container contact-card"><div><span className="eyebrow"><span/>{settings.business_name}</span><h2>{t.contactTitle}</h2><p>{lang === 'es' ? settings.tagline_es : 'More than properties, a legacy for your family.'}</p>{settings.city && <small className="contact-location"><MapPin/>{settings.city}</small>}</div><div className="contact-actions"><a className="button button-whatsapp" href="#contacto" onClick={event => openRegisteredAdvisorContact(event, [], lang, 'general')}><MessageCircle/>{t.whatsapp}</a></div></div></section>;
 }
 
+function PrivacyPolicyPage({ lang, settings }) {
+  const es = lang === 'es';
+  const business = settings.business_name || 'Amazonia Propiedades EC';
+  const contact = settings.email || settings.phone;
+  const sections = es ? [
+    ['Datos que tratamos', 'En el flujo de contacto no solicitamos tu nombre, correo electrónico ni número telefónico. Registramos únicamente el código de cliente generado, la propiedad, lote o selección del carrito que consultaste, el tipo de contacto, el asesor asignado y la fecha de la solicitud.'],
+    ['Para qué los utilizamos', 'Estos datos se usan para identificar tu consulta, asignarte un asesor, preparar el mensaje de WhatsApp y dar seguimiento exclusivamente a tu interés inmobiliario. No los utilizaremos para publicidad ajena a esta finalidad sin una autorización independiente.'],
+    ['Seguridad y proveedores', 'Cloudflare protege el formulario mediante Turnstile y controles contra abuso. Supabase almacena el registro de contacto. WhatsApp o Meta tratarán la conversación únicamente cuando decidas abrir WhatsApp y enviar el mensaje.'],
+    ['Conservación', 'Conservaremos el registro hasta 12 meses después de la última interacción, salvo que una obligación legal requiera un plazo mayor. Aplicamos criterios de minimización y acceso restringido.'],
+    ['Tus derechos', `Puedes solicitar acceso, rectificación, eliminación, oposición, portabilidad o suspensión cuando corresponda. Para ejercerlos, comunícate con ${contact || business}. Retirar tu consentimiento no afecta el tratamiento realizado legítimamente antes del retiro.`],
+  ] : [
+    ['Data we process', 'The contact flow does not ask for your name, email address or telephone number. We only record the generated client code, the property, lot or cart selection you enquired about, the contact type, the assigned advisor and the request date.'],
+    ['How we use it', 'We use this data to identify your enquiry, assign an advisor, prepare the WhatsApp message and follow up exclusively on your real estate interest. We will not use it for unrelated advertising without separate authorization.'],
+    ['Security and providers', 'Cloudflare protects the form with Turnstile and anti-abuse controls. Supabase stores the contact record. WhatsApp or Meta will process the conversation only when you choose to open WhatsApp and send the message.'],
+    ['Retention', 'We keep the record for up to 12 months after the last interaction, unless a legal obligation requires a longer period. We apply data minimization and restricted access.'],
+    ['Your rights', `You may request access, correction, deletion, objection, portability or restriction where applicable. To exercise these rights, contact ${contact || business}. Withdrawing consent does not affect processing lawfully carried out before withdrawal.`],
+  ];
+  return <>
+    <InnerHero
+      kicker={es ? 'Privacidad y transparencia' : 'Privacy and transparency'}
+      title={es ? <>Política de <em>Privacidad</em></> : <><em>Privacy</em> Policy</>}
+      text={es ? 'Te explicamos de forma clara cómo protegemos el código de cliente y la consulta inmobiliaria que decides registrar.' : 'A clear explanation of how we protect the client code and the real estate enquiry you choose to register.'}
+    />
+    <main className="privacy-page"><div className="container privacy-layout">
+      <aside className="privacy-summary"><ShieldCheck/><span>{es ? 'Versión vigente' : 'Current version'}</span><strong>11-09-2026</strong><p>{es ? 'La aceptación es opcional hasta que decidas contactar a un asesor. Sin ella no se crea ningún registro.' : 'Acceptance is optional until you decide to contact an advisor. No record is created without it.'}</p></aside>
+      <article className="privacy-content">
+        <p className="privacy-lead">{es ? `${business} es responsable del tratamiento descrito en esta política. Recogemos solamente la información necesaria para atender tu solicitud.` : `${business} is responsible for the processing described in this policy. We collect only the information needed to handle your request.`}</p>
+        {sections.map(([title, text]) => <section key={title}><h2>{title}</h2><p>{text}</p></section>)}
+        <section><h2>{es ? 'Consentimiento' : 'Consent'}</h2><p>{es ? 'Antes de la verificación de seguridad encontrarás una casilla sin marcar. Al seleccionarla confirmas que leíste esta política y aceptas el tratamiento indicado. La versión y la fecha de aceptación quedan vinculadas al registro identificado por tu código de cliente.' : 'Before the security check, you will find an unchecked box. Selecting it confirms that you have read this policy and agree to the processing described. The policy version and acceptance date are linked to the record identified by your client code.'}</p></section>
+        <section><h2>{es ? 'Autoridad de protección de datos' : 'Data protection authority'}</h2><p>{es ? <>También puedes consultar información y presentar solicitudes ante la <a href="https://spdp.gob.ec/" target="_blank" rel="noopener noreferrer">Superintendencia de Protección de Datos Personales del Ecuador</a>.</> : <>You may also obtain information and submit requests to Ecuador&apos;s <a href="https://spdp.gob.ec/" target="_blank" rel="noopener noreferrer">Personal Data Protection Superintendency</a>.</>}</p></section>
+      </article>
+    </div></main>
+  </>;
+}
+
 function InterestCartPage({ t, lang, settings }) {
   const cart = useInterestCart();
   const absoluteLink = item => new URL(item.link || '/', window.location.origin).href;
@@ -737,6 +772,9 @@ function App() {
       '/carrito': [isEnglish ? `Properties of interest | ${business}` : `Propiedades de interés | ${business}`, isEnglish
         ? 'Review the properties you selected before contacting an advisor.'
         : 'Revisa las propiedades seleccionadas antes de contactar a un asesor.'],
+      '/politica-de-privacidad': [isEnglish ? `Privacy policy | ${business}` : `Política de privacidad | ${business}`, isEnglish
+        ? 'Learn how your client code and real estate enquiry are processed.'
+        : 'Conoce cómo se tratan tu código de cliente y tu consulta inmobiliaria.'],
     };
     const fallback = path.startsWith('/propiedades/')
       ? [isEnglish ? `Property details | ${business}` : `Detalle de propiedad | ${business}`, isEnglish
@@ -760,6 +798,7 @@ function App() {
   if (detailMatch) page = <PropertyDetailPage t={language.t} lang={language.lang} identifier={decodeURIComponent(detailMatch[1])} settings={settings}/>;
   else if (path === '/propiedades') page = <PropertiesPage t={language.t} lang={language.lang} settings={settings}/>;
   else if (path === '/carrito') page = <InterestCartPage t={language.t} lang={language.lang} settings={settings}/>;
+  else if (path === '/politica-de-privacidad') page = <PrivacyPolicyPage lang={language.lang} settings={settings}/>;
   else if (path === '/casos-de-exito') page = <SuccessPage t={language.t} lang={language.lang} settings={settings}/>;
   else if (path === '/vende-con-nosotros') page = <SellPage t={language.t} lang={language.lang} settings={settings}/>;
   else page = <HomePage t={language.t} lang={language.lang} settings={settings}/>;

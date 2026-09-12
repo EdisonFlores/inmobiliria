@@ -5,6 +5,7 @@ const JSON_HEADERS = {
 };
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const PURPOSES = new Set(['property_interest', 'general', 'seller']);
+const PRIVACY_POLICY_VERSION = '2026-09-11';
 
 function json(body, status = 200, extraHeaders = {}) {
   return new Response(JSON.stringify(body), { status, headers: { ...JSON_HEADERS, ...extraHeaders } });
@@ -30,7 +31,15 @@ function validateRequestBody(value) {
   if (typeof value.turnstileToken !== 'string' || value.turnstileToken.length < 10 || value.turnstileToken.length > 2048) {
     throw new Error('Completa la verificación de seguridad.');
   }
-  return { purpose, items: normalized, turnstileToken: value.turnstileToken };
+  if (value.privacyAccepted !== true || value.privacyPolicyVersion !== PRIVACY_POLICY_VERSION) {
+    throw new Error('Debes aceptar la Política de Privacidad vigente.');
+  }
+  return {
+    purpose,
+    items: normalized,
+    turnstileToken: value.turnstileToken,
+    privacyPolicyVersion: value.privacyPolicyVersion,
+  };
 }
 
 async function verifyTurnstile(token, request, secret) {
@@ -95,6 +104,32 @@ async function createContact(env, request, body) {
   return result;
 }
 
+async function recordPrivacyAcceptance(env, contact, policyVersion) {
+  const contactId = contact?.contact_id;
+  if (!UUID.test(contactId || '')) throw new Error('El contacto generado no es válido.');
+  const baseUrl = env.SUPABASE_URL.replace(/\/$/, '');
+  const headers = {
+    apikey: env.SUPABASE_SERVICE_ROLE_KEY,
+    Authorization: `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}`,
+    'Content-Type': 'application/json',
+    Prefer: 'return=minimal',
+  };
+  const response = await fetch(`${baseUrl}/rest/v1/client_contacts?id=eq.${contactId}`, {
+    method: 'PATCH',
+    headers,
+    body: JSON.stringify({
+      notes: `[privacy-consent] version=${policyVersion}; accepted_at=${new Date().toISOString()}; scope=client_code,real_estate_interest`,
+    }),
+  });
+  if (response.ok) return contact;
+
+  await fetch(`${baseUrl}/rest/v1/client_contacts?id=eq.${contactId}`, {
+    method: 'DELETE',
+    headers,
+  }).catch(() => {});
+  throw new Error('No se pudo registrar la aceptación de privacidad.');
+}
+
 export async function onRequest(context) {
   const { request, env } = context;
   if (request.method !== 'POST') {
@@ -119,7 +154,8 @@ export async function onRequest(context) {
         { 'Retry-After': '30' },
       );
     }
-    return json(await createContact(env, request, body));
+    const contact = await createContact(env, request, body);
+    return json(await recordPrivacyAcceptance(env, contact, body.privacyPolicyVersion));
   } catch (error) {
     const status = error instanceof SyntaxError ? 400 : 422;
     return json({ error: status === 400 ? 'La solicitud no contiene JSON válido.' : error.message }, status);

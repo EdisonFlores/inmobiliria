@@ -52,13 +52,19 @@ export async function supabaseGet(table, params = {}, signal) {
   return response.json();
 }
 
-export async function createPublicClientContact(items, purpose = 'property_interest', turnstileToken = '') {
+export async function createPublicClientContact(items, purpose = 'property_interest', verification = {}) {
   const response = await fetch(`${import.meta.env.BASE_URL}api/contact`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ items, purpose, turnstileToken }),
+    body: JSON.stringify({
+      items,
+      purpose,
+      turnstileToken: verification.token || '',
+      privacyAccepted: verification.privacyAccepted === true,
+      privacyPolicyVersion: verification.privacyPolicyVersion || '',
+    }),
   });
   const data = await response.json().catch(() => ({}));
   if (!response.ok) throw new Error(data.error || 'No se pudo generar el código cliente.');

@@ -1,5 +1,6 @@
 const TURNSTILE_SCRIPT = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
 const SITE_KEY = import.meta.env.VITE_TURNSTILE_SITE_KEY;
+const PRIVACY_POLICY_VERSION = '2026-09-11';
 
 let scriptPromise;
 
@@ -43,22 +44,44 @@ export async function requestTurnstileToken(lang = 'es') {
     heading.textContent = lang === 'es' ? 'Verificación de seguridad' : 'Security verification';
     const description = document.createElement('p');
     description.textContent = lang === 'es'
-      ? 'Confirma que eres una persona para continuar con el asesor.'
-      : 'Confirm you are human to continue with an advisor.';
+      ? 'Antes de generar tu código de cliente, acepta la política y completa la verificación.'
+      : 'Before generating your client code, accept the policy and complete the verification.';
+    const consent = document.createElement('label');
+    consent.className = 'privacy-consent';
+    const consentInput = document.createElement('input');
+    consentInput.type = 'checkbox';
+    consentInput.required = true;
+    const consentText = document.createElement('span');
+    consentText.append(lang === 'es' ? 'Acepto la ' : 'I accept the ');
+    const privacyLink = document.createElement('a');
+    privacyLink.href = `${import.meta.env.BASE_URL}politica-de-privacidad`;
+    privacyLink.target = '_blank';
+    privacyLink.rel = 'noopener noreferrer';
+    privacyLink.textContent = lang === 'es' ? 'Política de Privacidad' : 'Privacy Policy';
+    consentText.append(privacyLink, lang === 'es'
+      ? ' para el tratamiento de mi código de cliente y mi interés inmobiliario.'
+      : ' for processing my client code and real estate interest.');
+    consent.append(consentInput, consentText);
+    const verifyButton = document.createElement('button');
+    verifyButton.type = 'button';
+    verifyButton.className = 'turnstile-continue privacy-verify';
+    verifyButton.disabled = true;
+    verifyButton.textContent = lang === 'es' ? 'Aceptar y verificar' : 'Accept and verify';
     const widget = document.createElement('div');
-    widget.className = 'turnstile-widget';
+    widget.className = 'turnstile-widget privacy-widget';
     const cancel = document.createElement('button');
     cancel.type = 'button';
     cancel.className = 'turnstile-cancel';
     cancel.textContent = lang === 'es' ? 'Cancelar' : 'Cancel';
 
-    card.append(heading, description, widget, cancel);
+    card.append(heading, description, consent, verifyButton, widget, cancel);
     overlay.append(card);
     document.body.append(overlay);
     document.body.classList.add('modal-open');
 
     let widgetId;
     let settled = false;
+    let verificationStarted = false;
     const close = (error, token) => {
       if (settled) return;
       settled = true;
@@ -73,17 +96,31 @@ export async function requestTurnstileToken(lang = 'es') {
     overlay.addEventListener('mousedown', event => {
       if (event.target === overlay) close(new DOMException('Cancelado', 'AbortError'));
     });
-
-    widgetId = turnstile.render(widget, {
-      sitekey: SITE_KEY,
-      action: 'contact',
-      theme: 'auto',
-      size: 'flexible',
-      callback: token => close(null, token),
-      'error-callback': () => close(new Error(lang === 'es'
-        ? 'No se pudo completar la verificación. Inténtalo nuevamente.'
-        : 'Security verification failed. Please try again.')),
-      'expired-callback': () => turnstile.reset(widgetId),
+    consentInput.addEventListener('change', () => {
+      verifyButton.disabled = !consentInput.checked;
+    });
+    verifyButton.addEventListener('click', () => {
+      if (!consentInput.checked || verificationStarted) return;
+      verificationStarted = true;
+      consentInput.disabled = true;
+      verifyButton.disabled = true;
+      verifyButton.textContent = lang === 'es' ? 'Completa la verificación' : 'Complete verification';
+      widget.classList.add('visible');
+      widgetId = turnstile.render(widget, {
+        sitekey: SITE_KEY,
+        action: 'contact',
+        theme: 'auto',
+        size: 'flexible',
+        callback: token => close(null, {
+          token,
+          privacyAccepted: true,
+          privacyPolicyVersion: PRIVACY_POLICY_VERSION,
+        }),
+        'error-callback': () => close(new Error(lang === 'es'
+          ? 'No se pudo completar la verificación. Inténtalo nuevamente.'
+          : 'Security verification failed. Please try again.')),
+        'expired-callback': () => turnstile.reset(widgetId),
+      });
     });
   });
 }

@@ -232,11 +232,19 @@ h1 em, h2 em { color: var(--leaf); font-weight: 600; }
 .turnstile-card h2 { margin: 0 0 9px; color: var(--forest); font-size: 28px; }
 .turnstile-card p { margin: 0 0 22px; color: var(--muted); line-height: 1.6; }
 .turnstile-widget { min-height: 65px; }
+.privacy-consent { display: grid; grid-template-columns: 20px 1fr; gap: 11px; margin: 0 0 16px; padding: 15px; border: 1px solid rgba(6,63,45,.16); border-radius: 8px; color: var(--text); background: var(--paper); text-align: left; font-size: 12px; line-height: 1.55; cursor: pointer; }
+.privacy-consent input { width: 17px; height: 17px; margin: 2px 0 0; accent-color: var(--forest); }
+.privacy-consent a { color: var(--forest); font-weight: 900; text-decoration: underline; text-underline-offset: 2px; }
+.privacy-verify { margin-bottom: 14px; }
+.privacy-verify:disabled { opacity: .48; cursor: not-allowed; }
+.privacy-widget { display: none; min-height: 0; }
+.privacy-widget.visible { display: block; min-height: 65px; }
 .turnstile-cancel { margin-top: 18px; padding: 10px 18px; border: 1px solid rgba(6,63,45,.2); border-radius: 7px; color: var(--forest); background: transparent; cursor: pointer; font-weight: 800; }
 .turnstile-success-badge { display: grid; place-items: center; width: 54px; height: 54px; margin: 0 auto 17px; border-radius: 50%; color: white; background: #2c9a5c; font-size: 28px; font-weight: 900; }
 .turnstile-continue { width: 100%; min-height: 48px; padding: 12px 18px; border: 0; border-radius: 7px; color: white; background: #168247; cursor: pointer; font-weight: 900; }
 .turnstile-continue:hover { background: #106b3a; }
 [data-theme="dark"] .turnstile-card { border-color: rgba(255,255,255,.12); }
+[data-theme="dark"] .privacy-consent { border-color: rgba(255,255,255,.14); }
 .button-whatsapp { background: #2c9a5c; }
 .contact-actions > a:last-child { display: flex; align-items: center; justify-content: center; gap: 8px; color: rgba(255,255,255,.72); font-size: 11px; }
 
@@ -256,6 +264,26 @@ footer .brand small { color: #a8cf77; }
 .footer-bottom { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding-top: 24px; border-top: 1px solid rgba(255,255,255,.12); color: rgba(255,255,255,.46); font-size: 9px; letter-spacing: .06em; }
 .developer-credit { display: inline-flex; align-items: center; gap: 5px; }.developer-credit a { display: inline-flex; align-items: center; gap: 5px; color: #fff; font-weight: 800; }.developer-credit a:hover { color: var(--gold); }.developer-credit svg { width: 13px; }
 .whatsapp-float { position: fixed; z-index: 40; right: 22px; bottom: 22px; display: grid; place-items: center; width: 52px; height: 52px; color: white; background: #2ca961; border: 4px solid rgba(255,255,255,.8); border-radius: 50%; box-shadow: 0 8px 30px rgba(0,0,0,.2); }
+
+.privacy-page { padding: clamp(60px,8vw,110px) 0; background: var(--cream); }
+.privacy-layout { display: grid; grid-template-columns: minmax(220px,.65fr) minmax(0,1.7fr); align-items: start; gap: clamp(35px,6vw,85px); }
+.privacy-summary { position: sticky; top: 110px; display: flex; flex-direction: column; align-items: flex-start; padding: 30px; color: white; background: var(--forest); border-radius: 10px; box-shadow: var(--shadow); }
+.privacy-summary > svg { width: 35px; height: 35px; margin-bottom: 25px; color: var(--gold); }
+.privacy-summary span { color: rgba(255,255,255,.6); font-size: 10px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
+.privacy-summary strong { margin: 7px 0 20px; font-size: 24px; }
+.privacy-summary p { margin: 0; color: rgba(255,255,255,.72); font-size: 12px; line-height: 1.75; }
+.privacy-content { padding: clamp(28px,5vw,60px); border: 1px solid rgba(6,63,45,.1); border-radius: 10px; background: var(--paper); box-shadow: 0 18px 55px rgba(8,52,39,.07); }
+.privacy-lead { margin: 0 0 36px; color: var(--forest); font-family: var(--serif); font-size: clamp(21px,2.4vw,30px); line-height: 1.4; }
+.privacy-content section { padding: 25px 0; border-top: 1px solid rgba(6,63,45,.1); }
+.privacy-content h2 { margin: 0 0 10px; color: var(--forest); font-size: clamp(20px,2vw,26px); }
+.privacy-content p { margin: 0; color: var(--muted); line-height: 1.85; }
+.privacy-content a { color: var(--leaf); font-weight: 800; text-decoration: underline; text-underline-offset: 3px; }
+
+@media (max-width: 760px) {
+  .privacy-layout { grid-template-columns: 1fr; }
+  .privacy-summary { position: static; }
+  .turnstile-card { padding: 24px 20px; }
+}
 
 .modal-backdrop { position: fixed; z-index: 100; inset: 0; display: grid; place-items: center; padding: 24px; background: rgba(2,25,18,.74); backdrop-filter: blur(8px); }
 .property-modal { position: relative; display: grid; grid-template-columns: 1fr 1fr; width: min(880px, 100%); max-height: min(650px, calc(100vh - 48px)); overflow: auto; background: var(--paper); border-radius: 10px; box-shadow: 0 30px 100px rgba(0,0,0,.3); }
