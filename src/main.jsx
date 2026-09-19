@@ -126,8 +126,8 @@ const copy = {
     heroKicker: 'Propiedades con propósito', heroTitle: <>Tu próximo legado comienza <em>en la Amazonía.</em></>,
     heroText: 'Encuentra casas, terrenos, fincas, lotes y proyectos seleccionados en la Amazonía ecuatoriana.',
     explore: 'Explorar propiedades', story: 'Conoce nuestra historia', families: 'Familias felices', years: 'Creando legado',
-    aboutKicker: 'Nuestra esencia', aboutTitle: <>Más que propiedades,<br/><em>un legado para tu familia.</em></>,
-    aboutLead: 'Más que propiedades, un legado para tu familia.',
+    aboutKicker: 'Nuestra esencia', aboutTitle: <>Tu propiedad,<br/><em>nuestra prioridad.</em></>,
+    aboutLead: 'Tu propiedad, nuestra prioridad.',
     aboutText: 'Acompañamos a compradores y vendedores con información clara, atención cercana y propiedades verificadas en cada etapa del proceso inmobiliario.',
     legal: 'Seguridad jurídica', earth: 'Conexión con la tierra', discover: 'Descubre nuestros espacios',
     propKicker: 'Encuentra tu lugar', propTitle: <>Propiedades para <em>nuevos comienzos</em></>, propIntro: 'Explora casas, terrenos, fincas, lotes y lotizaciones disponibles en Morona Santiago.',
@@ -149,8 +149,8 @@ const copy = {
     heroKicker: 'Properties with purpose', heroTitle: <>Your next legacy begins <em>in the Amazon.</em></>,
     heroText: 'Find selected homes, land, farms, lots and developments across the Ecuadorian Amazon.',
     explore: 'Explore properties', story: 'Discover our story', families: 'Happy families', years: 'Building legacies',
-    aboutKicker: 'Our essence', aboutTitle: <>More than properties,<br/><em>a legacy for your family.</em></>,
-    aboutLead: 'More than properties, a legacy for your family.',
+    aboutKicker: 'Our essence', aboutTitle: <>Your property,<br/><em>our priority.</em></>,
+    aboutLead: 'Your property, our priority.',
     aboutText: 'We support buyers and sellers with clear information, personal attention and verified properties throughout every stage of the real estate process.',
     legal: 'Legal certainty', earth: 'Connection to the land', discover: 'Discover our spaces',
     propKicker: 'Find your place', propTitle: <>Properties for <em>new beginnings</em></>, propIntro: 'Explore homes, land, farms, lots and subdivisions available in Morona Santiago.',
@@ -203,7 +203,7 @@ function Header({ t, lang, toggle, theme, toggleTheme, settings }) {
 }
 
 function Footer({ t, lang, settings }) {
-  const tagline = lang === 'es' ? settings.tagline_es : 'More than properties, a legacy for your family.';
+  const tagline = lang === 'es' ? settings.tagline_es : 'Your property, our priority.';
   const location = settings.address || settings.city;
   return <footer><div className="container footer-main"><div className="footer-brand"><Brand settings={settings}/><p>{tagline}</p>{(settings.facebook_url || settings.instagram_url) && <div className="footer-socials">{settings.facebook_url && <a href={settings.facebook_url} target="_blank" rel="noreferrer"><b>f</b><span>Facebook</span></a>}{settings.instagram_url && <a href={settings.instagram_url} target="_blank" rel="noreferrer"><b>ig</b><span>Instagram</span></a>}</div>}</div><nav className="footer-column" aria-label={lang === 'es' ? 'Explorar' : 'Explore'}><strong>{lang === 'es' ? 'Explorar' : 'Explore'}</strong><a href={pageUrl('/')}>{t.nav.home}</a><a href={pageUrl('/#nosotros')}>{t.nav.about}</a>{settings.show_properties && <a href={pageUrl('/propiedades')}>{t.nav.properties}</a>}</nav><nav className="footer-column" aria-label={lang === 'es' ? 'Servicios' : 'Services'}><strong>{lang === 'es' ? 'Servicios' : 'Services'}</strong>{settings.show_success_cases && <a href={pageUrl('/casos-de-exito')}>{t.nav.success}</a>}{settings.show_sell_with_us && <a href={pageUrl('/vende-con-nosotros')}>{t.nav.sell}</a>}<a href={pageUrl('/carrito')}>{t.cart}</a><a href={pageUrl('/politica-de-privacidad')}>{lang === 'es' ? 'Política de privacidad' : 'Privacy policy'}</a></nav><div className="footer-column footer-contact"><strong>{lang === 'es' ? 'Información de contacto' : 'Contact information'}</strong>{location && <span><MapPin/>{location}</span>}{settings.phone && <a href={`tel:${settings.phone.replace(/\s/g, '')}`}><Phone/>{settings.phone}</a>}{settings.email && <a href={`mailto:${settings.email}`}><Mail/>{settings.email}</a>}</div></div><div className="container footer-bottom"><span>© {new Date().getFullYear()} {settings.business_name}. {lang === 'es' ? 'Todos los derechos reservados.' : 'All rights reserved.'}</span><span className="developer-credit">{lang === 'es' ? 'Sitio web desarrollado por' : 'Website developed by'} <a href="https://edisonflores.vercel.app/" target="_blank" rel="noopener noreferrer">Edison Flores<ArrowRight/></a></span></div></footer>;
 }
@@ -692,7 +692,7 @@ function SellPage({ t, lang, settings }) {
 }
 
 function ContactStrip({ t, lang, settings }) {
-  return <section id="contacto" className="contact-section"><div className="container contact-card"><div><span className="eyebrow"><span/>{settings.business_name}</span><h2>{t.contactTitle}</h2><p>{lang === 'es' ? settings.tagline_es : 'More than properties, a legacy for your family.'}</p>{settings.city && <small className="contact-location"><MapPin/>{settings.city}</small>}</div><div className="contact-actions"><a className="button button-whatsapp" href="#contacto" onClick={event => openRegisteredAdvisorContact(event, [], lang, 'general')}><MessageCircle/>{t.whatsapp}</a></div></div></section>;
+  return <section id="contacto" className="contact-section"><div className="container contact-card"><div><span className="eyebrow"><span/>{settings.business_name}</span><h2>{t.contactTitle}</h2><p>{lang === 'es' ? settings.tagline_es : 'Your property, our priority.'}</p>{settings.city && <small className="contact-location"><MapPin/>{settings.city}</small>}</div><div className="contact-actions"><a className="button button-whatsapp" href="#contacto" onClick={event => openRegisteredAdvisorContact(event, [], lang, 'general')}><MessageCircle/>{t.whatsapp}</a></div></div></section>;
 }
 
 function PrivacyPolicyPage({ lang, settings }) {

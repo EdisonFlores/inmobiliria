@@ -6,7 +6,7 @@ const supabasePublishableKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 export const defaultSiteSettings = {
   singleton_key: 'main',
   business_name: 'Inmobiliaria',
-  tagline_es: 'Más que propiedades, un legado para tu familia.',
+  tagline_es: 'Tu propiedad, nuestra prioridad.',
   home_title_es: 'Tu próximo legado comienza en la Amazonía.',
   home_subtitle_es: 'Encuentra casas, terrenos, fincas y lotes seleccionados en la Amazonía ecuatoriana.',
   about_es: 'Somos una empresa inmobiliaria comprometida con acompañarte de forma cercana y segura.',
@@ -96,6 +96,7 @@ export function useSiteSettings() {
             ...defaultSiteSettings,
             ...(remoteSettings || {}),
             business_name: 'Inmobiliaria',
+            tagline_es: 'Tu propiedad, nuestra prioridad.',
             logo_url: '',
             hero_desktop_url: '',
             hero_mobile_url: '',
