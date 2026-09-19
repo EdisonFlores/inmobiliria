@@ -5,7 +5,7 @@ const supabasePublishableKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
 export const defaultSiteSettings = {
   singleton_key: 'main',
-  business_name: 'Amazonia Propiedades EC',
+  business_name: 'Inmobiliaria',
   tagline_es: 'Más que propiedades, un legado para tu familia.',
   home_title_es: 'Tu próximo legado comienza en la Amazonía.',
   home_subtitle_es: 'Encuentra casas, terrenos, fincas y lotes seleccionados en la Amazonía ecuatoriana.',
@@ -92,7 +92,16 @@ export function useSiteSettings() {
           singleton_key: 'eq.main',
         }, controller.signal);
         setState({
-          settings: { ...defaultSiteSettings, ...(remoteSettings || {}) },
+          settings: {
+            ...defaultSiteSettings,
+            ...(remoteSettings || {}),
+            business_name: 'Inmobiliaria',
+            logo_url: '',
+            hero_desktop_url: '',
+            hero_mobile_url: '',
+            about_image_url: '',
+            sell_image_url: '',
+          },
           loading: false,
           error: null,
         });

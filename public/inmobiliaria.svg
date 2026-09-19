@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Inmobiliaria">
+  <rect width="64" height="64" rx="14" fill="#063f2d"/>
+  <path d="M12 32 32 15l20 17v20H38V38H26v14H12Z" fill="#fff"/>
+  <path d="M42 13c7 1 11 5 10 12-7 1-12-2-14-8 1-2 2-3 4-4Z" fill="#c79a3b"/>
+</svg>
